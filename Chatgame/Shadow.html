@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mistérios de Shadowvale</title>
+    <style>
+        :root {
+            --primary-dark: #1a1a1a;
+            --secondary-dark: #2d2d2d;
+            --accent: #6e3b3b;
+            --text: #e0e0e0;
+            --shadow-light: rgba(255, 255, 255, 0.1);
+            --shadow-dark: rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scene-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: var(--secondary-dark);
+            border-radius: 20px;
+            margin: 20px;
+            box-shadow: inset 5px 5px 15px var(--shadow-dark),
+                        inset -5px -5px 15px var(--shadow-light);
+        }
+
+        .scene {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-size: cover;
+            background-position: center;
+            transition: all 0.5s ease;
+        }
+
+        .inventory {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: var(--secondary-dark);
+            border-radius: 15px;
+            box-shadow: 5px 5px 15px var(--shadow-dark),
+                        -5px -5px 15px var(--shadow-light);
+        }
+
+        .inventory-slot {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-dark);
+            border-radius: 10px;
+            box-shadow: inset 3px 3px 7px var(--shadow-dark),
+                        inset -3px -3px 7px var(--shadow-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .inventory-slot:hover {
+            transform: scale(1.1);
+        }
+
+        .dialog-box {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 800px;
+            padding: 20px;
+            background: var(--secondary-dark);
+            border-radius: 15px;
+            box-shadow: 5px 5px 15px var(--shadow-dark),
+                        -5px -5px 15px var(--shadow-light);
+            display: none;
+        }
+
+        .dialog-text {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .dialog-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dialog-option {
+            padding: 10px 20px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dialog-option:hover {
+            transform: scale(1.05);
+            background: #8a4848;
+        }
+
+        .item {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .item:hover {
+            transform: scale(1.2);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .menu {
+            background: var(--secondary-dark);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 5px 5px 15px var(--shadow-dark),
+                        -5px -5px 15px var(--shadow-light);
+            text-align: center;
+        }
+
+        .menu-title {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: var(--accent);
+            text-shadow: 2px 2px 4px var(--shadow-dark);
+        }
+
+        .menu-button {
+            padding: 15px 30px;
+            margin: 10px;
+            background: var(--accent);
+            border: none;
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-button:hover {
+            transform: scale(1.1);
+            background: #8a4848;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @media (max-width: 768px) {
+            .inventory {
+                width: 90%;
+            }
+
+            .dialog-box {
+                width: 95%;
+                bottom: 150px;
+            }
+
+            .menu {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div id="menu" class="menu-overlay">
+            <div class="menu">
+                <h1 class="menu-title">Mistérios de Shadowvale</h1>
+                <button class="menu-button" onclick="startGame()">Iniciar Jogo</button>
+                <button class="menu-button" onclick="loadGame()">Carregar Jogo</button>
+                <button class="menu-button" onclick="showCredits()">Créditos</button>
+            </div>
+        </div>
+
+        <div class="scene-container">
+            <div id="currentScene" class="scene"></div>
+        </div>
+
+        <div class="inventory" id="inventory">
+            <div class="inventory-slot"></div>
+            <div class="inventory-slot"></div>
+            <div class="inventory-slot"></div>
+            <div class="inventory-slot"></div>
+            <div class="inventory-slot"></div>
+        </div>
+
+        <div class="dialog-box" id="dialogBox">
+            <p class="dialog-text" id="dialogText"></p>
+            <div class="dialog-options" id="dialogOptions"></div>
+        </div>
+    </div>
+
+    <script>
+        const gameState = {
+            currentScene: 'start',
+            inventory: [],
+            progress: {},
+            dialogHistory: []
+        };
+
+        const scenes = {
+            start: {
+                background: 'https://picsum.photos/1920/1080?random=1',
+                description: 'Você acorda em uma mansão misteriosa em Shadowvale...',
+                items: [
+                    {
+                        id: 'key',
+                        x: 75,
+                        y: 60,
+                        name: 'Chave Antiga',
+                        description: 'Uma chave enferrujada com símbolos estranhos.'
+                    }
+                ],
+                exits: {
+                    hall: {
+                        x: 50,
+                        y: 80,
+                        requires: null
+                    }
+                }
+            },
+            hall: {
+                background: 'https://picsum.photos/1920/1080?random=2',
+                description: 'Um corredor sombrio se estende à sua frente...',
+                items: [],
+                exits: {
+                    library: {
+                        x: 30,
+                        y: 50,
+                        requires: 'key'
+                    },
+                    start: {
+                        x: 50,
+                        y: 90,
+                        requires: null
+                    }
+                }
+            },
+            library: {
+                background: 'https://picsum.photos/1920/1080?random=3',
+                description: 'Uma biblioteca antiga com livros empoeirados...',
+                items: [
+                    {
+                        id: 'note',
+                        x: 40,
+                        y: 70,
+                        name: 'Nota Misteriosa',
+                        description: 'Uma nota com escritas enigmáticas.'
+                    }
+                ],
+                exits: {
+                    hall: {
+                        x: 50,
+                        y: 90,
+                        requires: null
+                    }
+                }
+            }
+        };
+
+        function startGame() {
+            document.getElementById('menu').style.display = 'none';
+            loadScene('start');
+        }
+
+        function loadScene(sceneName) {
+            const scene = scenes[sceneName];
+            gameState.currentScene = sceneName;
+            
+            const sceneElement = document.getElementById('currentScene');
+            sceneElement.style.backgroundImage = `url(${scene.background})`;
+            
+            // Limpar cena atual
+            while (sceneElement.firstChild) {
+                sceneElement.removeChild(sceneElement.firstChild);
+            }
+
+            // Adicionar itens
+            scene.items.forEach(item => {
+                if (!gameState.inventory.includes(item.id)) {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'item';
+                    itemElement.style.left = `${item.x}%`;
+                    itemElement.style.top = `${item.y}%`;
+                    itemElement.onclick = () => collectItem(item);
+                    sceneElement.appendChild(itemElement);
+                }
+            });
+
+            // Adicionar saídas
+            Object.entries(scene.exits).forEach(([exitName, exit]) => {
+                const exitElement = document.createElement('div');
+                exitElement.className = 'item';
+                exitElement.style.left = `${exit.x}%`;
+                exitElement.style.top = `${exit.y}%`;
+                exitElement.onclick = () => tryExit(exitName, exit);
+                sceneElement.appendChild(exitElement);
+            });
+
+            showDialog(scene.description);
+        }
+
+        function collectItem(item) {
+            gameState.inventory.push(item.id);
+            showDialog(`Você encontrou: ${item.name}\n${item.description}`);
+            updateInventory();
+            loadScene(gameState.currentScene);
+        }
+
+        function tryExit(exitName, exit) {
+            if (!exit.requires || gameState.inventory.includes(exit.requires)) {
+                loadScene(exitName);
+            } else {
+                showDialog('Você precisa de algo para passar por aqui...');
+            }
+        }
+
+        function showDialog(text, options = []) {
+            const dialogBox = document.getElementById('dialogBox');
+            const dialogText = document.getElementById('dialogText');
+            const dialogOptions = document.getElementById('dialogOptions');
+
+            dialogText.textContent = text;
+            dialogOptions.innerHTML = '';
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'dialog-option';
+                button.textContent = option.text;
+                button.onclick = option.action;
+                dialogOptions.appendChild(button);
+            });
+
+            dialogBox.style.display = 'block';
+            setTimeout(() => {
+                if (options.length === 0) {
+                    dialogBox.style.display = 'none';
+                }
+            }, 3000);
+        }
+
+        function updateInventory() {
+            const slots = document.querySelectorAll('.inventory-slot');
+            slots.forEach((slot, index) => {
+                slot.innerHTML = gameState.inventory[index] ? 
+                    `<div class="inventory-item">${gameState.inventory[index]}</div>` : '';
+            });
+        }
+
+        function saveGame() {
+            localStorage.setItem('shadowvale-save', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const savedGame = localStorage.getItem('shadowvale-save');
+            if (savedGame) {
+                Object.assign(gameState, JSON.parse(savedGame));
+                document.getElementById('menu').style.display = 'none';
+                loadScene(gameState.currentScene);
+                updateInventory();
+            }
+        }
+
+        function showCredits() {
+            showDialog(
+                'Mistérios de Shadowvale\n\n' +
+                'Desenvolvido por: Seu Nome\n' +
+                'Música: Compositor\n' +
+                'Arte: Artista\n\n' +
+                'Obrigado por jogar!',
+                [{
+                    text: 'Voltar',
+                    action: () => {
+                        document.getElementById('dialogBox').style.display = 'none';
+                    }
+                }]
+            );
+        }
+
+        // Inicializar sons do jogo
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(frequency, duration) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Event Listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('menu').style.display = 
+                    document.getElementById('menu').style.display === 'none' ? 'flex' : 'none';
+            }
+        });
+
+        // Auto-save a cada 30 segundos
+        setInterval(saveGame, 30000);
+    </script>
+</body>
+</html>

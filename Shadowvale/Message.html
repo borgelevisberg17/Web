@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mistérios de Shadowvale</title>
+  <!-- Fontes -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Ícones -->
+  <link rel="stylesheet" href="dist/all.min.css">
+  <script type="text/javascript" src="dist/all.min.js"></script>
+  <!-- Estilos -->
+  <link rel="stylesheet" href="dist/style.css">
+</head>
+
+<body>
+  <!-- Tela Inicial -->
+  <div class="start-screen" id="startScreen">
+    <h1>Mistérios de Shadowvale</h1>
+    <form class="start-form" id="startForm">
+      <div class="form-group">
+        <label for="playerName">Seu Nome:</label>
+        <input type="text" id="playerName" required>
+      </div>
+      <div class="form-group">
+        <label for="playerGender">Seu Gênero:</label>
+        <select id="playerGender" required>
+          <option value="masculino">Masculino</option>
+          <option value="feminino">Feminino</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <button type="submit" class="start-button">Começar História</button>
+    </form>
+  </div>
+  
+  <!-- Container Principal do Jogo -->
+  <div class="game-container" id="gameContainer">
+    <!-- Header do Chat -->
+    <div class="chat-header">
+      <img src="assets/Images/img.jpg" alt="Profile" class="profile-pic">
+      <div class="chat-info">
+        <div class="chat-name">Detetive Maxwell</div>
+        <div class="status" id="status">online</div>
+      </div>
+    </div>
+    
+    <!-- Área de Mensagens -->
+    <div class="chat-messages" id="chatMessages">
+      <!-- As mensagens são inseridas aqui dinamicamente -->
+    </div>
+    
+    <!-- Área de Escolhas -->
+    <div class="choices-container" id="choicesContainer">
+      <!-- As opções de escolha são inseridas aqui dinamicamente -->
+    </div>
+    
+    <!-- Input de Mensagem -->
+    <div class="chat-input">
+      <input type="text" class="message-input" id="messageInput" placeholder="Digite sua mensagem..." disabled>
+      <button class="send-button" id="sendButton">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+    
+    <!-- Inventário de Evidências -->
+    <div class="evidence-drawer" id="evidenceDrawer">
+      <h2>Evidências Coletadas</h2>
+      <div id="evidenceList">
+        <!-- As evidências são inseridas aqui dinamicamente -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script type="module" src="dist/gameState.js"></script>
+  <script type="module" src="dist/story.js"></script>
+  <script type="module" src="dist/ui.js"></script>
+  <script type="module" src="dist/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCare - Plataforma de Atendimento Médico Online</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- FullCalendar -->
+    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.js'></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-light: #2B85FF;
+            --secondary-light: #E6F0FF;
+            --accent-light: #00D1B2;
+            --bg-light: #F8FAFC;
+            
+            --primary-dark: #1A5AAD;
+            --secondary-dark: #1E293B;
+            --accent-dark: #009B84;
+            --bg-dark: #0F172A;
+        }
+
+        .dark {
+            --primary: var(--primary-dark);
+            --secondary: var(--secondary-dark);
+            --accent: var(--accent-dark);
+            --bg: var(--bg-dark);
+            --text: #F8FAFC;
+        }
+
+        .light {
+            --primary: var(--primary-light);
+            --secondary: var(--secondary-light);
+            --accent: var(--accent-light);
+            --bg: var(--bg-light);
+            --text: #1E293B;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .neu-button {
+            background: var(--bg);
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2),
+                        -5px -5px 10px rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .neu-button:hover {
+            box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.2),
+                        inset -5px -5px 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            opacity: 0.1;
+        }
+
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            animation: moveBackground 30s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* Header Animation */
+        .menu-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .menu-item:hover::after {
+            width: 100%;
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Calendar Styles */
+        .fc {
+            background: var(--bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .fc-button {
+            background: var(--primary) !important;
+            border: none !important;
+        }
+
+        /* Form Styles */
+        .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            width: 100%;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(0, 209, 178, 0.2);
+        }
+    </style>
+</head>
+<body x-data="{ darkMode: false }" :class="darkMode ? 'dark' : 'light'" class="font-sans">
+    <div class="animated-bg"></div>
+
+    <!-- Header -->
+    <header class="fixed w-full top-0 z-50 glass-card">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-primary">MedCare</h1>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="menu-item">Início</a>
+                    <a href="#services" class="menu-item">Serviços</a>
+                    <a href="#prognostic" class="menu-item">Prognóstico</a>
+                    <a href="#schedule" class="menu-item">Agendar</a>
+                    <a href="#contact" class="menu-item">Contato</a>
+                    <button @click="darkMode = !darkMode" class="neu-button px-4 py-2">
+                        <span x-show="!darkMode">🌙</span>
+                        <span x-show="darkMode">☀️</span>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden neu-button p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-32 pb-20">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-wrap items-center">
+                <div class="w-full lg:w-1/2" data-aos="fade-right">
+                    <h2 class="text-5xl font-bold mb-6">Cuidados médicos online ao seu alcance</h2>
+                    <p class="text-xl mb-8">Consultas virtuais, prognósticos precisos e agendamento simplificado.</p>
+                    <button class="neu-button px-8 py-4 text-lg font-semibold">Agende sua consulta</button>
+                </div>
+                <div class="w-full lg:w-1/2 float" data-aos="fade-left">
+                    <img src="https://picsum.photos/800/600?random=1" alt="Medical Care" class="rounded-3xl shadow-xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="py-20 bg-opacity-50 glass-card">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">Nossos Serviços</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Service Card 1 -->
+                <div class="glass-card p-6" data-aos="fade-up">
+                    <div class="text-4xl mb-4">👨‍⚕️</div>
+                    <h3 class="text-xl font-semibold mb-4">Consultas Online</h3>
+                    <p>Atendimento médico virtual com profissionais qualificados.</p>
+                </div>
+                
+                <!-- Service Card 2 -->
+                <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-4xl mb-4">🔍</div>
+                    <h3 class="text-xl font-semibold mb-4">Prognóstico Digital</h3>
+                    <p>Análise preliminar de sintomas com IA avançada.</p>
+                </div>
+                
+                <!-- Service Card 3 -->
+                <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-4xl mb-4">📅</div>
+                    <h3 class="text-xl font-semibold mb-4">Agendamento Fácil</h3>
+                    <p>Marque suas consultas de forma rápida e prática.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prognostic System -->
+    <section id="prognostic" class="py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">Sistema de Prognóstico</h2>
+            <div class="glass-card p-8 max-w-2xl mx-auto">
+                <form x-data="{ step: 1 }" class="space-y-6">
+                    <!-- Step 1 -->
+                    <div x-show="step === 1">
+                        <h3 class="text-xl font-semibold mb-4">Informações Básicas</h3>
+                        <div class="space-y-4">
+                            <input type="text" placeholder="Nome completo" class="form-input">
+                            <input type="email" placeholder="E-mail" class="form-input">
+                            <input type="tel" placeholder="Telefone" class="form-input">
+                        </div>
+                        <button @click="step = 2" type="button" class="neu-button px-6 py-3 mt-6">Próximo</button>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div x-show="step === 2">
+                        <h3 class="text-xl font-semibold mb-4">Sintomas</h3>
+                        <div class="space-y-4">
+                            <textarea placeholder="Descreva seus sintomas" class="form-input h-32"></textarea>
+                            <div class="flex items-center space-x-4">
+                                <label>Intensidade da dor:</label>
+                                <input type="range" min="0" max="10" class="w-full">
+                            </div>
+                        </div>
+                        <div class="flex space-x-4 mt-6">
+                            <button @click="step = 1" type="button" class="neu-button px-6 py-3">Voltar</button>
+                            <button @click="step = 3" type="button" class="neu-button px-6 py-3">Próximo</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div x-show="step === 3">
+                        <h3 class="text-xl font-semibold mb-4">Histórico Médico</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="diabetes">
+                                <label for="diabetes">Diabetes</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="hipertensao">
+                                <label for="hipertensao">Hipertensão</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="cardiaco">
+                                <label for="cardiaco">Problemas Cardíacos</label>
+                            </div>
+                            <textarea placeholder="Outras condições médicas" class="form-input h-32"></textarea>
+                        </div>
+                        <div class="flex space-x-4 mt-6">
+                            <button @click="step = 2" type="button" class="neu-button px-6 py-3">Voltar</button>
+                            <button type="submit" class="neu-button px-6 py-3">Enviar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scheduling System -->
+    <section id="schedule" class="py-20 glass-card">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">Agendamento Online</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Calendar -->
+                <div class="glass-card p-6">
+                    <div id="calendar"></div>
+                </div>
+
+                <!-- Appointment Form -->
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-semibold mb-6">Detalhes da Consulta</h3>
+                    <form class="space-y-4">
+                        <select class="form-input">
+                            <option>Selecione a especialidade</option>
+                            <option>Clínico Geral</option>
+                            <option>Cardiologia</option>
+                            <option>Dermatologia</option>
+                            <option>Pediatria</option>
+                        </select>
+                        <select class="form-input">
+                            <option>Selecione o médico</option>
+                            <option>Dr. João Silva</option>
+                            <option>Dra. Maria Santos</option>
+                            <option>Dr. Pedro Oliveira</option>
+                        </select>
+                        <input type="date" class="form-input">
+                        <select class="form-input">
+                            <option>Selecione o horário</option>
+                            <option>09:00</option>
+                            <option>10:00</option>
+                            <option>11:00</option>
+                            <option>14:00</option>
+                            <option>15:00</option>
+                        </select>
+                        <textarea placeholder="Observações" class="form-input h-32"></textarea>
+                        <button type="submit" class="neu-button px-6 py-3 w-full">Confirmar Agendamento</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 glass-card mt-20">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">MedCare</h3>
+                    <p>Cuidando da sua saúde de forma digital e eficiente.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Links Rápidos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#services">Serviços</a></li>
+                        <li><a href="#prognostic">Prognóstico</a></li>
+                        <li><a href="#schedule">Agendar</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Contato</h4>
+                    <ul class="space-y-2">
+                        <li>📞 (11) 9999-9999</li>
+                        <li>📧 contato@medcare.com</li>
+                        <li>📍 São Paulo, SP</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Redes Sociais</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-2xl">📱</a>
+                        <a href="#" class="text-2xl">💻</a>
+                        <a href="#" class="text-2xl">📸</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-600 mt-8 pt-8 text-center">
+                <p>&copy; 2023 MedCare. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Initialize FullCalendar
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: [],
+                selectable: true,
+                select: function(info) {
+                    alert('Horário selecionado: ' + info.startStr);
+                }
+            });
+            calendar.render();
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        
+        if(mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
